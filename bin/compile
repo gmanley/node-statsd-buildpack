@@ -1,0 +1,58 @@
+#!/bin/sh
+
+ROOT_DIR=`dirname $0`
+BUILD_DIR="$1"
+CACHE_DIR="$2"
+ENV_DIR="$3"
+VENDOR_DIR="${BUILD_DIR}/vendor"
+
+export_env_dir() {
+  env_dir=$1
+  whitelist_regex=${2:-''}
+  blacklist_regex=${3:-'^(PATH|GIT_DIR|CPATH|CPPATH|LD_PRELOAD|LIBRARY_PATH)$'}
+  if [ -d "$env_dir" ]; then
+    for e in $(ls $env_dir); do
+      echo "$e" | grep -E "$whitelist_regex" | grep -qvE "$blacklist_regex" &&
+      export "$e=$(cat $env_dir/$e)"
+      :
+    done
+  fi
+}
+
+export_env_dir $ENV_DIR
+
+###########################################
+# Install gostatsd module
+###########################################
+
+mkdir -p "${VENDOR_DIR}"
+cp -a "${ROOT_DIR}/.." "${VENDOR_DIR}/amb-metrics"
+
+###########################################
+# Create .profile.d script
+###########################################
+
+cat > ${BUILD_DIR}/.profile.d/gostatsd.sh << EOF
+#!/bin/sh
+
+test -f "/app/.statsd.conf" && STATSD_CONFIG_FILE="--config-path /app/.statsd.conf"
+
+AWS_ACCESS_KEY_ID=\${STATSD_AWS_ACCESS_KEY_ID:-\$AWS_ACCESS_KEY_ID} \
+AWS_SECRET_ACCESS_KEY=\${STATSD_AWS_SECRET_ACCESS_KEY:-\$AWS_SECRET_ACCESS_KEY} \
+/app/vendor/amb-metrics/binaries/gostatsd \
+    --backends \${STATSD_BACKEND:-cloudwatch} \
+    \${STATSD_OPTS:---flush-interval 30s} \
+    \${STATSD_CONFIG_FILE} \
+    &
+
+export NODE_OPTIONS="--require /app/vendor/amb-metrics"
+EOF
+
+chmod +x "${BUILD_DIR}/.profile.d/gostatsd.sh"
+
+###########################################
+# Install appmetrics-statsd node module
+###########################################
+
+cd "${BUILD_DIR}/vendor/amb-metrics"
+npm install
