@@ -1,6 +1,9 @@
 const URL = require('url');
 const StatsD = require('node-statsd');
 
+// Inject custom probes
+require('./probes');
+
 const metrics = require('appmetrics').monitor();
 
 const tags = (process.env.STATSD_TAGS || '').split(/,|\n/).filter(v => !!v);
@@ -72,6 +75,9 @@ metrics.on('http', function handleHTTP(http) {
     statsd.timing(`http.${method}.${path}`, http.duration);
 });
 
+/*
+ * Disabled for now since this generates duplicate metrics
+ * under the 'http' metric as well.
 metrics.on('https', function handleHTTPS(https) {
     const url = URL.parse(https.url);
     const method = https.method.toLowerCase();
@@ -81,6 +87,7 @@ metrics.on('https', function handleHTTPS(https) {
     statsd.timing(`https.${method}`, https.duration);
     statsd.timing(`https.${method}.${path}`, https.duration);
 });
+*/
 
 metrics.on('http-outbound', function handleOutbound(http) {
     const url = URL.parse(http.url);
@@ -90,6 +97,9 @@ metrics.on('http-outbound', function handleOutbound(http) {
     statsd.timing(`fetch.http.${domain}`, http.duration);
 });
 
+/*
+ * Disabled for now since this generates duplicate metrics
+ * under the 'http-outbound' metric as well.
 metrics.on('https-outbound', function handleOutbound(https) {
     const url = URL.parse(https.url);
     const domain = cleanUrl(url.hostname);
@@ -97,6 +107,7 @@ metrics.on('https-outbound', function handleOutbound(https) {
     statsd.timing('fetch.https', https.duration);
     statsd.timing(`fetch.https.${domain}`, https.duration);
 });
+*/
 
 const TABLE_REGEX = /(FROM|UPDATE|INSERT INTO)\s*`?([^\s`]+)`?/i;
 metrics.on('mysql', function handleMySQL(mysql) {
