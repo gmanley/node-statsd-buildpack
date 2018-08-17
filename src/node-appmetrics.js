@@ -34,16 +34,20 @@ const statsd = new StatsD({
 
 metrics.on('cpu', function handleCPU(cpu) {
     statsd.gauge('cpu.process', cpu.process);
-    statsd.gauge('cpu.system', cpu.system);
+
+    // This metric makes little sense on Heroku
+    // statsd.gauge('cpu.system', cpu.system);
 });
 
 metrics.on('memory', function handleMem(memory) {
     statsd.gauge('memory.process.private', memory.private);
     statsd.gauge('memory.process.physical', memory.physical);
     statsd.gauge('memory.process.virtual', memory.virtual);
-    statsd.gauge('memory.system.used', memory.physical_used);
-    statsd.gauge('memory.system.free', memory.physical_free);
-    statsd.gauge('memory.system.total', memory.physical_total);
+
+    // Host memory stats are not useful for us.
+    // statsd.gauge('memory.system.used', memory.physical_used);
+    // statsd.gauge('memory.system.free', memory.physical_free);
+    // statsd.gauge('memory.system.total', memory.physical_total);
 });
 
 metrics.on('eventloop', function handleEventloop(eventloop) {
@@ -68,14 +72,14 @@ metrics.on('gc', function handleGC(gc) {
 });
 
 metrics.on('http', function handleHTTP(http) {
-    const url = URL.parse(http.url);
     const method = http.method.toLowerCase();
-    const path = cleanUrl(url.pathname);
 
     statsd.timing('http', http.duration);
     statsd.timing(`http.${method}`, http.duration);
 
     // Would create too many CloudWatch metrics
+    // const url = URL.parse(http.url);
+    // const path = cleanUrl(url.pathname);
     // statsd.timing(`http.${method}.${path}`, http.duration);
 });
 
