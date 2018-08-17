@@ -72,7 +72,9 @@ metrics.on('http', function handleHTTP(http) {
 
     statsd.timing('http', http.duration);
     statsd.timing(`http.${method}`, http.duration);
-    statsd.timing(`http.${method}.${path}`, http.duration);
+
+    // Would create too many CloudWatch metrics
+    // statsd.timing(`http.${method}.${path}`, http.duration);
 });
 
 /*
