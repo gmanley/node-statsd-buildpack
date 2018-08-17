@@ -46,7 +46,7 @@ if [ ! -z "\$STATSD_ENABLED" ] && [ \$STATSD_ENABLED -gt 0 ]; then
         \${STATSD_CONFIG_FILE} \
         &
 
-    export NODE_OPTIONS="--require /app/vendor/amb-metrics"
+    export NODE_OPTIONS="--require /app/vendor/amb-metrics $NODE_OPTIONS"
 fi
 EOF
 
