@@ -20,7 +20,7 @@ Heroku buildpack that automatically runs [gostatsd](https://github.com/atlassian
 | `STATSD_BACKEND` | `cloudwatch` | The metrics backend used by statsd |
 | `STATSD_ENABLED` | false | Controls whether to start `gostatsd` and preload `appmetrics` |
 | `STATSD_TAGS` | null | `APP_NAME` will be set as `service:$APP_NAME`, `WORKER_NAME` will be set as `worker:$WORKER_NAME` |
-| `STATSD_OPTS` | `--flush-interval 30s` | Controls how often `gostatsd` pushes metrics to the backend |
+| `STATSD_OPTS` | `--flush-interval 60s` | Controls how often `gostatsd` pushes metrics to the backend |
 
 ## Config file
 

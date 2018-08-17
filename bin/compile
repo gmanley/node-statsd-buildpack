@@ -42,7 +42,7 @@ if [ ! -z "\$STATSD_ENABLED" ] && [ \$STATSD_ENABLED -gt 0 ]; then
     AWS_SECRET_ACCESS_KEY=\${STATSD_AWS_SECRET_ACCESS_KEY:-\$AWS_SECRET_ACCESS_KEY} \
     /app/vendor/amb-metrics/binaries/gostatsd \
         --backends \${STATSD_BACKEND:-cloudwatch} \
-        \${STATSD_OPTS:---flush-interval 30s} \
+        \${STATSD_OPTS:---flush-interval 60s} \
         \${STATSD_CONFIG_FILE} \
         &
 
