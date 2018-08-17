@@ -6,7 +6,9 @@ require('./probes');
 
 const metrics = require('appmetrics').monitor();
 
-const tags = (process.env.STATSD_TAGS || '').split(/,|\n/).filter(v => !!v);
+const { STATSD_TAGS, APP_NAME, WORKER_NAME } = process.env;
+
+const tags = (STATSD_TAGS || '').split(/,|\n/).filter(v => !!v);
 
 function cleanUrl(value) {
     return (value || '')
@@ -14,11 +16,11 @@ function cleanUrl(value) {
         .replace(/^_+|_+$/, '');
 }
 
-if (process.env.APP_NAME)
-    tags.push('service:' + process.env.APP_NAME);
+if (APP_NAME)
+    tags.push('service:' + APP_NAME);
 
-if (process.env.WORKER_NAME)
-    tags.push('worker:' + process.env.WORKER_NAME);
+if (WORKER_NAME && WORKER_NAME.split(/,|\n/g).length < 2)
+    tags.push('worker:' + WORKER_NAME);
 
 const statsd = new StatsD({
     globalize: true,
