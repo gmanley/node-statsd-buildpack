@@ -35,17 +35,19 @@ cp -a "${ROOT_DIR}" "${VENDOR_DIR}/amb-metrics"
 cat > ${BUILD_DIR}/.profile.d/gostatsd.sh << EOF
 #!/bin/sh
 
-test -f "/app/.statsd.toml" && STATSD_CONFIG_FILE="--config-path /app/.statsd.toml"
+if [ ! -z "\$STATSD_ENABLED" ] && [ \$STATSD_ENABLED -gt 0 ]; then
+    test -f "/app/.statsd.toml" && STATSD_CONFIG_FILE="--config-path /app/.statsd.toml"
 
-AWS_ACCESS_KEY_ID=\${STATSD_AWS_ACCESS_KEY_ID:-\$AWS_ACCESS_KEY_ID} \
-AWS_SECRET_ACCESS_KEY=\${STATSD_AWS_SECRET_ACCESS_KEY:-\$AWS_SECRET_ACCESS_KEY} \
-/app/vendor/amb-metrics/binaries/gostatsd \
-    --backends \${STATSD_BACKEND:-cloudwatch} \
-    \${STATSD_OPTS:---flush-interval 30s} \
-    \${STATSD_CONFIG_FILE} \
-    &
+    AWS_ACCESS_KEY_ID=\${STATSD_AWS_ACCESS_KEY_ID:-\$AWS_ACCESS_KEY_ID} \
+    AWS_SECRET_ACCESS_KEY=\${STATSD_AWS_SECRET_ACCESS_KEY:-\$AWS_SECRET_ACCESS_KEY} \
+    /app/vendor/amb-metrics/binaries/gostatsd \
+        --backends \${STATSD_BACKEND:-cloudwatch} \
+        \${STATSD_OPTS:---flush-interval 30s} \
+        \${STATSD_CONFIG_FILE} \
+        &
 
-export NODE_OPTIONS="--require /app/vendor/amb-metrics"
+    export NODE_OPTIONS="--require /app/vendor/amb-metrics"
+fi
 EOF
 
 chmod +x "${BUILD_DIR}/.profile.d/gostatsd.sh"

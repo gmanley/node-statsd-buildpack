@@ -230,7 +230,7 @@ RedisProbe.prototype.attach = function(name, target) {
         },
         function(target, method, methodArgs, probeData, rc) {
             if (aspect.findCallbackArg(methodArgs) != undefined)
-                return;
+                return rc;
 
             function endProbe() {
                 var eventName = method.toLowerCase();
@@ -239,9 +239,11 @@ RedisProbe.prototype.attach = function(name, target) {
             }
 
             if (!rc || typeof rc.then !== 'function')
-                return endProbe();
+                endProbe();
+            else
+                rc.then(endProbe, endProbe);
 
-            rc.then(endProbe, endProbe);
+            return rc;
         }
     );
 
