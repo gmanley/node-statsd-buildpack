@@ -1,0 +1,20 @@
+# Disable some unused metrics by setting them to `true`
+[disabled-sub-metrics]
+# Regular metrics
+count=false
+count-per-second=false
+mean=false
+median=false
+lower=true
+upper=true
+stddev=true
+sum=true
+sum-squares=true
+
+# Percentile metrics
+count-pct=true
+mean-pct=false
+sum-pct=true
+sum-squares-pct=true
+lower-pct=true
+upper-pct=true

@@ -1,6 +1,6 @@
 #!/bin/sh
 
-ROOT_DIR=`dirname $0`
+ROOT_DIR="$(dirname $0)/.."
 BUILD_DIR="$1"
 CACHE_DIR="$2"
 ENV_DIR="$3"
@@ -26,7 +26,7 @@ export_env_dir $ENV_DIR
 ###########################################
 
 mkdir -p "${VENDOR_DIR}"
-cp -a "${ROOT_DIR}/.." "${VENDOR_DIR}/amb-metrics"
+cp -a "${ROOT_DIR}" "${VENDOR_DIR}/amb-metrics"
 
 ###########################################
 # Create .profile.d script
@@ -35,7 +35,7 @@ cp -a "${ROOT_DIR}/.." "${VENDOR_DIR}/amb-metrics"
 cat > ${BUILD_DIR}/.profile.d/gostatsd.sh << EOF
 #!/bin/sh
 
-test -f "/app/.statsd.conf" && STATSD_CONFIG_FILE="--config-path /app/.statsd.conf"
+test -f "/app/.statsd.toml" && STATSD_CONFIG_FILE="--config-path /app/.statsd.toml"
 
 AWS_ACCESS_KEY_ID=\${STATSD_AWS_ACCESS_KEY_ID:-\$AWS_ACCESS_KEY_ID} \
 AWS_SECRET_ACCESS_KEY=\${STATSD_AWS_SECRET_ACCESS_KEY:-\$AWS_SECRET_ACCESS_KEY} \
@@ -49,6 +49,15 @@ export NODE_OPTIONS="--require /app/vendor/amb-metrics"
 EOF
 
 chmod +x "${BUILD_DIR}/.profile.d/gostatsd.sh"
+
+###########################################
+# Install a default config file
+###########################################
+
+if [ ! -f "${BUILD_DIR}/.statsd.toml" ]; then
+    cp "${ROOT_DIR}/config.default.toml" "${BUILD_DIR}/.statsd.toml"
+fi
+
 
 ###########################################
 # Install appmetrics-statsd node module
