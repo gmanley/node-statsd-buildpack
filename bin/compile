@@ -41,9 +41,9 @@ if [ ! -z "\$STATSD_ENABLED" ] && [ \$STATSD_ENABLED -gt 0 ]; then
     AWS_ACCESS_KEY_ID=\${STATSD_AWS_ACCESS_KEY_ID:-\$AWS_ACCESS_KEY_ID} \
     AWS_SECRET_ACCESS_KEY=\${STATSD_AWS_SECRET_ACCESS_KEY:-\$AWS_SECRET_ACCESS_KEY} \
     /app/vendor/amb-metrics/binaries/gostatsd \
-        --backends \${STATSD_BACKEND:-cloudwatch} \
+        --backends "\${STATSD_BACKEND:-cloudwatch}" \
         \${STATSD_OPTS:---flush-interval 60s --expiry-interval 90s} \
-        \${STATSD_CONFIG_FILE} \
+        "\${STATSD_CONFIG_FILE}" \
         &
 
     export NODE_OPTIONS="--require /app/vendor/amb-metrics $NODE_OPTIONS"
