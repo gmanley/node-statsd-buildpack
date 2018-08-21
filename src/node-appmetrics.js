@@ -1,11 +1,6 @@
 const URL = require('url');
 const StatsD = require('node-statsd');
 
-// Inject custom probes
-require('./probes');
-
-const metrics = require('appmetrics').monitor();
-
 const { STATSD_TAGS, APP_NAME, WORKER_NAME } = process.env;
 
 const tags = (STATSD_TAGS || '').split(/,|\n/).filter(v => !!v);
@@ -19,9 +14,20 @@ function cleanUrl(value) {
 if (APP_NAME)
     tags.push('service:' + APP_NAME);
 
-if (WORKER_NAME && WORKER_NAME.split(/,|\n/g).length < 2)
+if (WORKER_NAME && WORKER_NAME.split(/,|\n/g).length < 2) {
     tags.push('worker:' + WORKER_NAME);
+} else if (WORKER_NAME) {
+    // WORKER_NAME contains multiple workers
+    // This means we are running the launcher and still starting up
+    return;
+}
 
+const appmetrics = require('appmetrics');
+
+// Inject custom appmetrics probes
+require('./probes');
+
+const metrics = appmetrics.monitor();
 const statsd = new StatsD({
     globalize: true,
     host: process.env.STATSD_HOST,
