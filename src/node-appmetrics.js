@@ -38,6 +38,9 @@ const statsd = new StatsD({
     global_tags: tags
 });
 
+// Ensure process exits when done
+statsd.socket.unref();
+
 metrics.on('cpu', function handleCPU(cpu) {
     statsd.gauge('cpu.process', cpu.process);
 
