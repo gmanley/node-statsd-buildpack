@@ -38,6 +38,10 @@ cat > ${BUILD_DIR}/.profile.d/gostatsd.sh << EOF
 if [ ! -z "\$STATSD_ENABLED" ] && [ \$STATSD_ENABLED -gt 0 ]; then
     test -f "/app/.statsd.toml" && STATSD_CONFIG_FILE="--config-path /app/.statsd.toml"
 
+   if [ "\$STATSD_BACKEND" -eq 'graphite' && ! -z "\$GRAPHITE_ADDRESS"]; then
+     "address = \"\$GRAPHITE_ADDRESS\"" >> /app/.statsd.toml
+   fi
+
     AWS_ACCESS_KEY_ID=\${STATSD_AWS_ACCESS_KEY_ID:-\$AWS_ACCESS_KEY_ID} \
     AWS_SECRET_ACCESS_KEY=\${STATSD_AWS_SECRET_ACCESS_KEY:-\$AWS_SECRET_ACCESS_KEY} \
     /app/vendor/amb-metrics/binaries/gostatsd \
